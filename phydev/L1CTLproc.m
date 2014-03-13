@@ -18,16 +18,16 @@
 switch phyconnect.getMsgTypeFromL2
     case phyconnect.FBSB_REQ
         fprintf('Receiving FBSB_REQ\n');
-        FBSB_REQ_handle(phyconnect,dfe,det,dec,tpu);
+        FBSB_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu);
     case phyconnect.PM_REQ
         fprintf('Receiving PM_REQ\n');
-        PM_REQ_handle(phyconnect,dfe,tpu);
+        PM_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu);
     case phyconnect.RESET_REQ
         fprintf('Receiving RESET_REQ\n');
-        RESET_REQ_handle(phyconnect,tpu);
+        RESET_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu);
     case phyconnect.CCCH_MODE_REQ
         fprintf('Receiving CCCH_MODE_REQ\n');
-        CCCH_MODE_REQ_handle(phyconnect,tpu);
+        CCCH_MODE_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu);
     otherwise
         error('Receiving unknown message type\n');
 end

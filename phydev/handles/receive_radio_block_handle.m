@@ -1,5 +1,5 @@
 % receive_radio_block_handle.m - Receive a radio block and process it
-% accordingly. TYPE is DATA_IND, DATA_CONF, or VOICE_IND.
+% accordingly.
 %
 % Copyright (C) 2013 Integrated System Laboratory ETHZ (SharperEDGE Team)
 %
@@ -16,7 +16,7 @@
 % You should have received a copy of the GNU General Public License along
 % with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function receive_radio_block_handle(phyconnect,TYPE,ARFCN,det,dec,tpu)
+function receive_radio_block_handle(phyconnect,gsmphy,dfe,det,dec,tpu,ARFCN)
 
 % initialization
 MatPhyConfig;
@@ -26,16 +26,12 @@ info_dl.band_arfcn = ARFCN;
 info_dl.frame_nr = tpu.FN;
 
 % set channel number and link identifier according to 3GPP TS 48.058
-% TODO: clean up
-fn = tpu.FN;
-tn = tpu.TN;
-tn = dec2bin(tn,3);
 % default values
 chan_nr = 0;
 link_id = 0;
 if ARFCN == phyconnect.getARFCN % receiving radio block on the BCCH carrier, TODO: there are other cases
-    if mod(fn,51) == 2 % listening on the BCCH channel, TODO there are other fn for BCCH data
-        chan_nr = [ '10000' tn ];
+    if mod(tpu.FN,51) == 2 % listening on the BCCH channel, TODO there are other fn for BCCH data
+        chan_nr = [ '10000' dec2bin(tpu.TN,3); ];
         chan_nr = bin2dec(chan_nr);
         link_id = '00000000'; % TODO: why not 00100000 ???
         link_id = bin2dec(link_id);
@@ -47,7 +43,7 @@ info_dl.snr = 20; % TODO: measure this
 info_dl.rx_level = 62; % TODO: measure this
 
 % check whether there exist bcch samples for ARFCN
-if ~any (ARFCN_vec == info_dl.band_arfcn)
+if ~any (gsmphy.ARFCN_vec == info_dl.band_arfcn)
     % TODO
     return;
 end
@@ -61,7 +57,7 @@ bcch = bcch_samples{info_dl.band_arfcn};
 % Base_params_bcch;
 
 % make sure to use the correct TS as described in 3GPP TS 45.002 and 23.003
-if (ARFCN == phyconnect.getARFCN) && (TYPE == phyconnect.DATA_IND) % we are on the bcch carrier and are listening on BCCH or CCCH
+if (ARFCN == phyconnect.getARFCN) && (phyconnect.DATA_IND == phyconnect.DATA_IND) % we are on the bcch carrier and are listening on BCCH or CCCH
     BSIC = phyconnect.getBSIC;
     tmp = dec2bin(BSIC,6);
     tc.tsc = bin2dec(tmp(4:6)); % TS number is BCC, which are the last 3 bits of the BSIC
@@ -97,7 +93,7 @@ if rptDEC.parityd == 0
     
     payload = Um2byte(rptDEC.userdata);
     
-    phyconnect.putDATA(info_dl,payload,TYPE);
+    phyconnect.putDATA(info_dl,payload,phyconnect.DATA_IND);
     
 else
     fprintf('Unable to decode radio block\n');

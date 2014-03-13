@@ -29,6 +29,9 @@ addpath('./classes/');
 %% intantiate PhyConnect class
 phyconnect = PhyConnect;
 
+%% intantiate GsmTap class
+gsmtap = GsmTap;
+
 %% handshake
 fprintf('Tell phydev that phyconnect is ready\n');
 phyconnect.setPhyconnectReady(1);
@@ -52,7 +55,7 @@ while true
         break;
     end
 end
-fprintf('L1CTL msg of type %g received\n',phyconnect.getMsgTypeFromL1());
+fprintf('L1CTL msg of type %s received\n',phyconnect.getMsgTypeFromL1(true));
 phyconnect.setAckToL1
         
 
@@ -73,7 +76,7 @@ while true
         break;
     end
 end
-fprintf('L1CTL msg of type %g received\n',phyconnect.getMsgTypeFromL1());
+fprintf('L1CTL msg of type %s received\n',phyconnect.getMsgTypeFromL1(true));
 phyconnect.setAckToL1
 
 
@@ -97,7 +100,7 @@ while true
         break;
     end
 end
-fprintf('L1CTL msg of type %g received\n',phyconnect.getMsgTypeFromL1());
+fprintf('L1CTL msg of type %s received\n',phyconnect.getMsgTypeFromL1(true));
 phyconnect.setAckToL1
 % TODO: get synch data
 % fprintf('FB_est() primitive result: %g Hz\n',...)
@@ -109,6 +112,10 @@ while 1
             break;
         end
     end
-    fprintf('L1CTL msg of type %g received\n',phyconnect.getMsgTypeFromL1());
-    phyconnect.setAckToL1
+    fprintf('L1CTL msg of type %s received\n',phyconnect.getMsgTypeFromL1(true));
+    if phyconnect.getMsgTypeFromL1() == phyconnect.DATA_IND;
+        msg = phyconnect.getDATA();
+        gsmtap.osmo(msg);
+    end
+    phyconnect.setAckToL1;
 end

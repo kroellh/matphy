@@ -15,7 +15,7 @@
 % You should have received a copy of the GNU General Public License along
 % with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function FBSB_REQ_handle(phyconnect,dfe,det,dec,tpu)
+function FBSB_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu)
 
 MatPhyConfig;
 

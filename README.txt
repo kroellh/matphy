@@ -3,7 +3,7 @@ README
 ------
 
 Further documentation including a quickstart guide can be found on the
-project website: http://matphy.osmocom.org
+project website: http://code.google.com/p/matphy/
 
 1. Skip this step if you already have the latest version of libosmocore
    installed on your system. Otherwise, download, compile and install

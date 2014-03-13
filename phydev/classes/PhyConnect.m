@@ -42,7 +42,8 @@ classdef PhyConnect < handle
         ARFCN_CUR_IDX = 10;     % ARFCN of the currently synched cell
         BSIC_CUR_IDX = 11;      % BSIC of the currently synched cell
         
-        INFO_DL_LE = 8; % info_dl length in memory mapped file (words)
+        INFO_DL_LE = 8;         % info_dl length in memory mapped file (words)
+        DATA_LE = 23;           % data length of control channels
         
     end
     properties (Hidden)
@@ -54,7 +55,7 @@ classdef PhyConnect < handle
     end
     properties (Constant)
         %% L1CTL message types
-        FBSB_REQ        = 1;
+        FBSB_REQ        = 1;        
         FBSB_CONF       = 2;
         DATA_IND        = 3;
         RACH_REQ        = 4;
@@ -79,11 +80,43 @@ classdef PhyConnect < handle
         SIM_CONF        = 23;
         TCH_MODE_REQ    = 24;
         TCH_MODE_CONF   = 25;
-        VOICE_REQ       = 26;
-        VOICE_CONF      = 27;
-        VOICE_IND       = 28;
-        MEAS_REQ        = 29;
-        MEAS_IND        = 30;
+        NEIGH_PM_REQ    = 26;
+        NEIGH_PM_IND    = 27;
+        TRAFFIC_REQ     = 28;
+        TRAFFIC_CONF    = 29;
+        TRAFFIC_IND     = 30;
+        L1CTL_STR = {...
+            'FBSB_REQ',...
+            'FBSB_CONF',...
+            'DATA_IND',...
+            'RACH_REQ',...
+            'DM_EST_REQ',...
+            'DATA_REQ',...
+            'RESET_IND',...
+            'PM_REQ',...
+            'PM_CONF',...
+            'ECHO_REQ',...
+            'ECHO_CONF',...
+            'RACH_CONF',...
+            'RESET_REQ',...
+            'RESET_CONF',...
+            'DATA_CONF',...
+            'CCCH_MODE_REQ',...
+            'CCCH_MODE_CONF',...
+            'DM_REL_REQ',...
+            'PARAM_REQ',...
+            'DM_FREQ_REQ',...
+            'CRYPTO_REQ',...
+            'SIM_REQ',...
+            'SIM_CONF',...
+            'TCH_MODE_REQ',...
+            'TCH_MODE_CONF',...
+            'NEIGH_PM_REQ',...
+            'NEIGH_PM_IND',...
+            'TRAFFIC_REQ',...
+            'TRAFFIC_CONF',...
+            'TRAFFIC_IND',...
+            };
     end
     methods
         
@@ -224,8 +257,11 @@ classdef PhyConnect < handle
         end
         
         %% get message type for phyconnect/L2
-        function type = getMsgTypeFromL1(obj)
+        function type = getMsgTypeFromL1(obj,string)
             type = obj.get(obj.TYP_PCT_IDX);
+            if exist('string','var') && string
+                type = char(obj.L1CTL_STR(type));
+            end
         end
         
         %% get RESET_REQ
@@ -369,7 +405,7 @@ classdef PhyConnect < handle
             
         end
         
-        %% put DATA_IND, DATA_CONF, VOICE_IND
+        %% put DATA_IND, DATA_CONF
         function putDATA(obj,info_dl,data,type)
             
             % wait for phyconnect to be ready
@@ -381,20 +417,30 @@ classdef PhyConnect < handle
                     fprintf('Sending DATA_IND, ARFCN %4u \n',info_dl.band_arfcn);
                 case obj.DATA_CONF
                     fprintf('Sending DATA_CONF, ARFCN %4u \n',info_dl.band_arfcn);
-                case obj.VOICE_IND
-                    fprintf('Sending VOICE_IND, ARFCN %4u \n',info_dl.band_arfcn);
                 otherwise
                     error('Invalid type\n');
             end
             obj.put(obj.MSG_FLAG_IDX,0);
             obj.put(obj.TYP_PCT_IDX,type);
             obj.put_info_dl(info_dl);
-            for i=1:length(data)
+            for i=1:obj.DATA_LE
                 obj.put(obj.PCT_START_IDX+obj.INFO_DL_LE+i-1,data(i));
             end
             
             % set SYN
             obj.setSynToL2();
+            
+        end
+        
+        %% get DATA_IND, DATA_CONF
+        function msg = getDATA(obj)
+            
+            % get data
+            msg.info_dl = obj.get_info_dl();
+            msg.data = zeros(1,obj.DATA_LE);
+            for i=1:obj.DATA_LE
+                msg.data(i) = obj.get(obj.PCT_START_IDX+obj.INFO_DL_LE+i-1);
+            end
             
         end
         
@@ -452,6 +498,18 @@ classdef PhyConnect < handle
             obj.put(obj.PCT_START_IDX+5,info_dl.snr);
             obj.put(obj.PCT_START_IDX+6,info_dl.num_biterr);
             obj.put(obj.PCT_START_IDX+7,info_dl.fire_crc);
+        end
+        
+        %% get info_dl
+        function info_dl = get_info_dl(obj)
+            info_dl.chan_nr = get(obj,obj.PCT_START_IDX);
+            info_dl.link_id = get(obj,obj.PCT_START_IDX+1);
+            info_dl.band_arfcn = get(obj,obj.PCT_START_IDX+2);
+            info_dl.frame_nr = get(obj,obj.PCT_START_IDX+3);
+            info_dl.rx_level = get(obj,obj.PCT_START_IDX+4);
+            info_dl.snr = get(obj,obj.PCT_START_IDX+5);
+            info_dl.num_biterr = get(obj,obj.PCT_START_IDX+6);
+            info_dl.fire_crc = get(obj,obj.PCT_START_IDX+7);
         end
         
     end

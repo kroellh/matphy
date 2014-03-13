@@ -51,9 +51,6 @@ FBSB_DUR        = .5;           % max FBSB duration, max .5s
 L_FB            = 45;           % window in terms of BN samples used for FB detection
 % no longer needed L_SB            = 157;          % SB duration in BN (one timeslot): TODO what about 156.25???
 PM_SKIP         = 1;            % only perform PMs on ARFCN 0 through 124 (only works with bcch_scan)
-
-%% BCCH carrier settings
-ARFCN_vec           = [50 61 87];     % ARFCN of the recorded BCCH carrier samples
        
 %% DEBUG flags
 PM_DEBUG    = 1;

@@ -26,7 +26,9 @@ addpath('./auxi/');
 addpath('./handles/');
 addpath('./classes/');
 
-%% load configuration constants
+%% instantiate GsmPhy class
+gsmphy = GsmPhy;
+% TODO: don't use MatPhyConfig anymore
 MatPhyConfig;
 
 %% instantiate PhyConnect class
@@ -43,14 +45,14 @@ dec = DEC;
 
 %% load BCCH samples
 global bcch_samples;
-for i=1:length(ARFCN_vec)
-    load(['BCCH_samples/' num2str(ARFCN_vec(i))]);
+for i=1:length(gsmphy.ARFCN_vec)
+    load(['BCCH_samples/' num2str(gsmphy.ARFCN_vec(i))]);
     % do some scaling
-    % TODO: why to we scale???
+    % TODO: why do we scale???
     bcch_i = (real(bb_data)-mean(real(bb_data)))./max(real(bb_data));
     bcch_q = (imag(bb_data)-mean(imag(bb_data)))./max(imag(bb_data));
     bcch_iq = bcch_i + 1j*bcch_q;
-    bcch_samples{ARFCN_vec(i)} = bcch_iq;
+    bcch_samples{gsmphy.ARFCN_vec(i)} = bcch_iq;
 end
 
 %% tell phyconnect that phydev is ready and wait for phyconnect to be ready
@@ -94,7 +96,7 @@ while 1
         %
         %   see  "BCCH Reading" pp32
         if any(mod(tpu.FN,51) == fire)
-            receive_radio_block_handle(phyconnect,phyconnect.DATA_IND,phyconnect.getARFCN,det,dec,tpu);
+            receive_radio_block_handle(phyconnect,gsmphy,dfe,det,dec,tpu,phyconnect.getARFCN);
         end
         
         % check for new L1CTL messages from memory mapped file

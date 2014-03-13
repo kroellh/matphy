@@ -15,7 +15,7 @@
 % You should have received a copy of the GNU General Public License along
 % with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function PM_REQ_handle(phyconnect,dfe,tpu)
+function PM_REQ_handle(phyconnect,gsmphy,dfe,det,dec,tpu)
 
 MatPhyConfig;
 
@@ -24,7 +24,7 @@ pmreq = phyconnect.getPM_REQ;
 switch pmreq.type
     case PM_T_ONE
         fprintf('PM type: PM_T_ONE\n');
-        exec_PM(phyconnect,pmreq,dfe,tpu);
+        exec_PM(phyconnect,gsmphy,dfe,det,dec,tpu,pmreq);
     otherwise
         fprintf('Unknown PM request\n');
 end
@@ -32,7 +32,7 @@ end
 
 
 %% execute PM
-function exec_PM(phyconnect,pmreq,dfe,tpu)
+function exec_PM(phyconnect,gsmphy,dfe,det,dec,tpu,pmreq)
 
 MatPhyConfig;
 
@@ -71,7 +71,7 @@ for j=1:PM_NUM
         % compute current position in 51 multiframe in terms of BN
         N = tpu.indexBN;
         % take measurements
-        if any (ARFCN_vec == arfcn+pmreq.band_arfcn_from-1) % measurements from samples
+        if any (gsmphy.ARFCN_vec == arfcn+pmreq.band_arfcn_from-1) % measurements from samples
             
             % NEW
             cmdDFE.type = 'RXPWR';
