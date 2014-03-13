@@ -23,7 +23,7 @@ fprintf('under certain conditions; type "help PHYtest" for details.\n');
 fprintf('Documentation: http://matphy.osmocom.org\n\n');
 
 %% add paths
-addpath('./aux/');
+addpath('./auxi/');
 addpath('./classes/');
  
 %% intantiate PhyConnect class
