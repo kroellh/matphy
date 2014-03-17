@@ -72,9 +72,10 @@ end
 fprintf('Tell phyconnect that phydev is ready\n');
 phyconnect.setPhydevReady(1); % set phyconnect ready
 
-% Where to decode radio blocks
+% Where to decode radio blocks on the BCCH carrier
 % FN counter modulo 51
-fire = 2; % 2 is the first BCCH frame inside a multiframe
+% 2 is the first BCCH frame inside a multiframe
+fire = [ 2 6 ];
 
 %% PHY/L1 Controller
 % implements the PHY FSM
@@ -83,41 +84,44 @@ fire = 2; % 2 is the first BCCH frame inside a multiframe
 tpuConfig.TpuDisplay = 0;
 tpu = TPU(tpuConfig);
 
-%tpu.display;
+tpu.display;
 
 while 1
     % check whether we are synced to a base station
     if phyconnect.getPhyFsmState == S_SYNCED
         
-        % receive a NB when the corresponding frame arrives
-        %   NBs are constantly received without waiting
-        %   for a L1CTL message. They are sent to the phyconnect
-        %   in form of a L1CTL_DATA_IND message.
-        %
-        %   see  "BCCH Reading" pp32
+        tpu.display;
+        
+        % Receive radio blocks on the BCCH carrier
+        % Radio blocks are constantly received without waiting
+        % for a L1CTL message. They are sent to the phyconnect
+        % in form of a L1CTL_DATA_IND message.
         if any(mod(tpu.FN,51) == fire)
             receive_radio_block_handle(phyconnect,gsmphy,dfe,det,dec,tpu,phyconnect.getARFCN);
+            continue;
         end
         
         % check for new L1CTL messages from memory mapped file
         if phyconnect.getSynFromL2()
             L1CTLproc; % process L1CTL message
+            continue;
         end
         
         % run tpu
-        tpu.display;
         tpu.incFN;
-        if SYNC_WAIT
-            pause(.1);
-        end
-
+        
     else % not synced
+        
+        tpu.display;
+        
         % check for new messages form phyconnect
         if phyconnect.getSynFromL2()
             L1CTLproc; % process L1CTL message
+            continue;
         end
+        
         % run tpu
-        tpu.display;
         tpu.incQN;
+        
     end
 end

@@ -69,7 +69,16 @@ classdef GsmTap < handle
             header.signal_dbm = msg.info_dl.rx_level;
             header.snr_db = msg.info_dl.snr;
             header.frame_number = msg.info_dl.frame_nr;
-            header.sub_type = 1; % BCCH
+            chan_nr_cbits = dec2bin(msg.info_dl.chan_nr,8);
+            chan_nr_cbits = chan_nr_cbits(1:5);
+            switch chan_nr_cbits
+                case '10000' % BCCH
+                    header.sub_type = 1;
+                case '10010' % CCCH
+                    header.sub_type = 2;
+                otherwise % unknown
+                    header.sub_type = 0;
+            end
             header = obj.castHeader(header);
             data = obj.castData(msg.data);
             obj.send([header data]);

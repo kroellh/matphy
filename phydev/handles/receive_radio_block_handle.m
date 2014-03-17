@@ -26,19 +26,19 @@ info_dl.band_arfcn = ARFCN;
 info_dl.frame_nr = tpu.FN;
 
 % set channel number and link identifier according to 3GPP TS 48.058
-% default values
-chan_nr = 0;
-link_id = 0;
 if ARFCN == phyconnect.getARFCN % receiving radio block on the BCCH carrier, TODO: there are other cases
-    if mod(tpu.FN,51) == 2 % listening on the BCCH channel, TODO there are other fn for BCCH data
-        chan_nr = [ '10000' dec2bin(tpu.TN,3); ];
-        chan_nr = bin2dec(chan_nr);
-        link_id = '00000000'; % TODO: why not 00100000 ???
-        link_id = bin2dec(link_id);
+    if mod(tpu.FN,51) == 2 % BCCH data
+        info_dl.chan_nr = [ '10000' dec2bin(tpu.TN,3); ];
+        info_dl.link_id = '00000000';
+    else % TODO: currently all other frames on the BCCH carrier are treated as CCCH
+        info_dl.chan_nr = [ '10010' dec2bin(tpu.TN,3); ];
+        info_dl.link_id = '00000000';
     end
+else
+    error('Receiving on carriers other than BCCH not implemented');
 end
-info_dl.chan_nr = chan_nr;
-info_dl.link_id = link_id;
+info_dl.chan_nr = bin2dec(info_dl.chan_nr);
+info_dl.link_id = bin2dec(info_dl.link_id);
 info_dl.snr = 20; % TODO: measure this
 info_dl.rx_level = 62; % TODO: measure this
 
@@ -52,9 +52,6 @@ end
 global bcch_samples;
 global bcch;
 bcch = bcch_samples{info_dl.band_arfcn};
-
-% settings
-% Base_params_bcch;
 
 % make sure to use the correct TS as described in 3GPP TS 45.002 and 23.003
 if (ARFCN == phyconnect.getARFCN) && (phyconnect.DATA_IND == phyconnect.DATA_IND) % we are on the bcch carrier and are listening on BCCH or CCCH
