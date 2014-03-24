@@ -101,9 +101,9 @@ while true
     end
 end
 fprintf('L1CTL msg of type %s received\n',phyconnect.getMsgTypeFromL1(true));
-phyconnect.setAckToL1
-% TODO: get synch data
-% fprintf('FB_est() primitive result: %g Hz\n',...)
+fbsbconf = phyconnect.getFBSB_CONF();
+fprintf('FB_est() primitive result: %u Hz\n',fbsbconf.initial_freq_err);
+phyconnect.setAckToL1;
 
 %% (4) wait for radio blocks the L1 controller receives on BCCH
 while 1

@@ -47,7 +47,6 @@ if rptDFE.fb == 1 % FB found
     if rptDEC.parityd == 0
         
         [info_dl.frame_nr fbsbconf.bsic] = SB_ext(rptDEC.userdata); % extract SB information
-        % fbsb.num_biterr = errors;           % number of errors on SB's training sequence
         info_dl.fire_crc = rptDEC.parityd;    % parity check zero is successfull
         fbsbconf.result = 0;                  % result successfull
         
@@ -56,11 +55,11 @@ if rptDFE.fb == 1 % FB found
         
         % set counters according to SB
         % jump to next frame taking into account sb_offset
-        tpu.jumpBN(8*BURST_DUR+rptDET.sb_offset);
+        tpu.jumpBN(8*gsmphy.BURST_DUR_BN+rptDET.sb_offset);
         
         old_idx = tpu.indexBN;
         tpu.reset;
-        tpu.FN = info_dl.frame_nr+1;  % set FN + 1 (plus 1 because we already jumped to next frame
+        tpu.FN = info_dl.frame_nr+1;  % set FN + 1 (plus 1 because we already jumped to next frame)
         new_idx = tpu.indexBN;
         tpu.OffsetBN = old_idx - new_idx; % set offset
         
@@ -82,21 +81,14 @@ if rptDFE.fb == 1 % FB found
     else % no SB detected
         fbsbconf.result = 255;
         fprintf('Unable to detect SB after FB');
-        %if bn_cur + L_FB + L_SB <= bn_max
-        %    fprintf(', waiting for next FB\n');
-        %else
-            fprintf('\n');
-        %end
+        fprintf('\n');
         if FBSB_DEBUG
             pause(2);
         end
-        
         tpu.incTN;
-        %bn_cur = bn_cur + obj.BURST_DUR_BN;
     end
 else
     tpu.jumpBN(L_FB);
-    %bn_cur = bn_cur + L_FB;
 end
 
 if fbsbconf.result == 255

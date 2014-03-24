@@ -405,6 +405,15 @@ classdef PhyConnect < handle
             
         end
         
+        %% get FBSB_CONF
+        function fbsbconf = getFBSB_CONF(obj)
+            
+            fbsbconf.initial_freq_err   = obj.get(obj.PCT_START_IDX+obj.INFO_DL_LE);
+            fbsbconf.result             = obj.get(obj.PCT_START_IDX+obj.INFO_DL_LE+1);
+            fbsbconf.bsic               = obj.get(obj.PCT_START_IDX+obj.INFO_DL_LE+2);
+            
+        end
+        
         %% put DATA_IND, DATA_CONF
         function putDATA(obj,info_dl,data,type)
             

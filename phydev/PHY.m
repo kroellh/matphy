@@ -52,7 +52,8 @@ for i=1:length(gsmphy.ARFCN_vec)
     bcch_i = (real(bb_data)-mean(real(bb_data)))./max(real(bb_data));
     bcch_q = (imag(bb_data)-mean(imag(bb_data)))./max(imag(bb_data));
     bcch_iq = bcch_i + 1j*bcch_q;
-    bcch_samples{gsmphy.ARFCN_vec(i)} = bcch_iq;
+    % use row vectors only
+    bcch_samples{gsmphy.ARFCN_vec(i)} = reshape(bcch_iq,1,[]);
 end
 
 %% tell phyconnect that phydev is ready and wait for phyconnect to be ready

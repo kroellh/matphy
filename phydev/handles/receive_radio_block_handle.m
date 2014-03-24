@@ -59,15 +59,7 @@ if (ARFCN == phyconnect.getARFCN) && (phyconnect.DATA_IND == phyconnect.DATA_IND
     tmp = dec2bin(BSIC,6);
     tc.tsc = bin2dec(tmp(4:6)); % TS number is BCC, which are the last 3 bits of the BSIC
 else
-    % TODO, 0 might not always be right
-    tc.tsc = 0;
-end
-
-% apparantly, this is necessary (see Chan_est.m line 20)
-% TODO
-tmp = size(bcch);
-if tmp(1) > tmp(2)
-    bcch = transpose(bcch);
+    error('Channels other than BCCH or CCCH not implemented yet');
 end
 
 %% receiving

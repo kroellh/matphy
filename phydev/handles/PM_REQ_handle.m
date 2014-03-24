@@ -47,15 +47,12 @@ switch phyconnect.getPhyFsmState
         % TODO
     otherwise
         % TODO
-end        
+end
 
 % do the measurements according to 3GPP TS 45.008 (PM_NUM measurements per ARFCN)
 dBm = zeros(pmreq.band_arfcn_to-pmreq.band_arfcn_from,PM_NUM);
 % BN samples per measurement
-%L = floor(PM_T_MAX / ( PM_NUM*(cast(interface.Data(123)-interface.Data(122),'double')) * BN_P) );
 L = 100; % according to 3GPP TS 45.008, measurements need to be performed over all frequencies, 5 times per frequency evenly spread over 3 to 5 seconds. 100 is more than half a burst and complies with these restrictions
-% QN samples per measurement
-%L_QN = floor(PM_T_MAX / ( PM_NUM*(cast(interface.Data(123)-interface.Data(122),'double')) * QN_P) );
 for j=1:PM_NUM
     for arfcn = 1:(pmreq.band_arfcn_to-pmreq.band_arfcn_from+1)
         if PM_DEBUG

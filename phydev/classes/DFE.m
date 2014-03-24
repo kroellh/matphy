@@ -88,12 +88,6 @@ classdef DFE < GsmPhy
                     % synchronization
                     N = tpu.indexBN;
                     
-                    % TPU jump in case
-                    % if (N+obj.DFEconf.foe.festbufsize+obj.L_SB > length(bcch))
-                    % tpu.jumpBN(L_FB);
-                    % bn_cur = bn_cur + L_FB;
-                    % end
-                    
                     %% FBdet
                     % TODO: timeout
                     fb_det = 0;
@@ -141,12 +135,6 @@ classdef DFE < GsmPhy
                         if bn_cur + 8*obj.BURST_DUR_BN >= bn_max
                             fbsb.result = 255;
                         end
-                        
-                        % apparantly, this is necessary (see Chan_est.m line 17)
-                        tmp = size(bcch);
-                        if tmp(1) > tmp(2)
-                            bcch = transpose(bcch);
-                        end
                     else
                         fprintf('no FB detected\n');
                     end
@@ -155,28 +143,18 @@ classdef DFE < GsmPhy
                 otherwise
                     error('DFE cmd not supported')
             end
-            
         end
-        
         
         %% correct frequency offset (AFC)
         function AFC(obj,freq_offset)
             
-            %obj.NrSamples;
-            
-            %constants;
             global bcch;
             
             % compute angle step between samples
             angle_step = -freq_offset*2*pi*obj.BN_P;
             
             % create rotation vector
-            angle_vec = transpose(exp(1i*[0:length(bcch)-1]*angle_step));
-            
-            tmp = size(bcch);
-            if tmp(2) > tmp(1)
-                bcch = transpose(bcch);
-            end
+            angle_vec = exp(1i*[0:length(bcch)-1]*angle_step);
             
             bcch = bcch.*angle_vec;
             

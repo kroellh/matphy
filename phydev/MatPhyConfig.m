@@ -57,13 +57,3 @@ PM_DEBUG    = 1;
 FBSB_DEBUG  = 0;
 SYNC_WAIT   = 1;
 PM_WAIT     = 0;
-
-% TODO: used in FBSB_REQ_handle
-BURST_DUR           = 156.25;
-
-QN_P = 1e-6*12/13;  % absolut duration of quarter symbol
-BN_P = 4*1e-6*12/13;      % absolut duration of symbol
-TN_P = 625*4*1e-6*12/13;  % absolut duration of time slot
-FN_P = 8*625*4*1e-6*12/13;      % absolut duration of frame
-
-N_MF            = 8;            % number of multiframes in bcch samples
